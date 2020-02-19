@@ -1,15 +1,16 @@
-# python与RTFRAME的方案选择
+# python支持实现方案
 
 在实现上有两种方式
 
 >第一种是通过框架本身的执行器，将数据反序列化后，通过三方库go-python调用python的算法，本质上是通过cgo调用cpython。
+
 >第二种是框架启动一个python的解释器进程，由python直接运行python算法。
 
 * 第一种方式虽然对框架本身改动很小，但cgo调用开销，数据转换等麻烦的问题很多，真正实现起来阻力不小，并且结构上就存在效率问题，实际的情况也是这样，这个实现方式中途停止了。
 
 * 第二种方式需要开发支持python算法的基本python模块，主要实现参数的解析，业务数据的收发序列化，状态的上报等执行器基本功能，虽然有一些工作量，但结构清晰，效率得到了最大化保证，也是最终采用的方式
 
-# python环境要求
+# python开发与运行环境要求
 
 python2与python3有很大不同，考虑到python2将很快不受官方支持，因此后期就主要基于python3进行，不过适配python2改动不大。
 
@@ -18,11 +19,31 @@ python2与python3有很大不同，考虑到python2将很快不受官方支持�
 ## protobuf/grpc支持
 
 开发机上需要安装proto编译器，并将协议文件*.proto生成python执行器的grpc框架代码,*.pb2.py *.pb2_grpc.py。
-运行设备上需要安装grpcio，增加对grpc的支持。
+运行设备上需要安装protobuf以及grpcio，增加对proto解析以及grpc的支持。
+
+通过pip指令安装protobuf，grpcio
+
+> pip3 install protobuf
+
+> pip3 install grpcio
+
+若速度慢导致安装失败可以指定国内源
+
+> pip3 install protobuf -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+> pip3 install grpcio -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 ## msgpack支持
 
-通过pip3 install msgpack安装msgpack模块。
+通过pip安装msgpack模块
+
+> pip3 install msgpack
+
+> pip3 install msgpack -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+
+# 遗留的一个问题
+ 
 我们在框架中定义了msg格式为
 
 ```
@@ -36,9 +57,10 @@ type Row struct {
 
 # python执行器框架代码
 
-包含了mapreduce.py、mrutil.py两个文件，一个主运行模块，一个辅助功能模块。
+包含了框架为支持python执行器所开发程序，包含在mapreduce.py、mrutil.py两个文件中，一个主运行模块，一个辅助功能模块。
+protobuf/grpc自动生成的代码，gleam_pb2_grpc.py、gleam_pb2.py两个文件，python的主入口程序目前也放在框架代码中，后续可以在运行节点上查找
 
-# python算法编写
+# python算法编写举例
 
 框架提供了PyMap与PyReduce两个数据操作
 
