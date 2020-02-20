@@ -1,0 +1,34 @@
+{
+  "name": "2048x64 tsqr test",
+  "executables":["python3.7", "mapreduce.py", "mrutil.py", "user.py", "user1.py", "user2.py", "gleam_pb2.py", "gleam_pb2_grpc.py"],
+  "dataSource": {
+    "tsqrData": {
+      "path": "2048x64.csv",
+      "type": "csv"
+    }
+  },
+  "steps": [
+    {
+      "name": "a",
+      "input": {
+        "type": "dataSource",
+        "ref": ["tsqrData"]
+      },
+      "ops": [
+        {"op": "PyMap", "processor_type": "cpu", "args": ["dataSplit", "user", "dataSplit"]},
+        {"op": "RoundRobin", "processor_type": "cpu", "args": ["toMultiWorker", "16"]},
+        {"op": "PyMap", "processor_type": "cpu", "args": ["simpleQR", "user1", "simpleQR"]},
+        {"op": "MergeTo", "processor_type": "cpu", "args": ["combineQR", "8"]},
+        {"op": "PyMap", "processor_type": "cpu", "args": ["simpleQR", "user1", "simpleQR"]},
+        {"op": "MergeTo", "processor_type": "cpu", "args": ["combineQR", "4"]},
+        {"op": "PyMap", "processor_type": "cpu", "args": ["simpleQR", "user1", "simpleQR"]},        
+        {"op": "MergeTo", "processor_type": "cpu", "args": ["combineQR", "2"]},
+        {"op": "PyMap", "processor_type": "cpu", "args": ["simpleQR", "user1", "simpleQR"]},
+        {"op": "MergeTo", "processor_type": "cpu", "args": ["combineQR", "1"]},
+        {"op": "PyMap", "processor_type": "cpu", "args": ["simpleQR", "user1", "simpleQR"]},
+        {"op": "PyMap", "processor_type": "cpu", "args": ["serialLine", "user2", "serialLine"]},
+        {"op": "Printlnf", "processor_type": "cpu", "args": ["%s"]}
+      ]
+    }
+  ]
+}
