@@ -1,12 +1,13 @@
 {
   "name": "2048x64 tsqr test",
   "executables":["python3.7", "mapreduce.py", "mrutil.py", "user.py", "user1.py", "user2.py", "gleam_pb2.py", "gleam_pb2_grpc.py"],
-  "dataSource": {
-    "tsqrData": {
+  "dataSource": [
+    {
+      "name": "tsqrData",
       "path": "2048x64.csv",
       "type": "csv"
     }
-  },
+  ],
   "steps": [
     {
       "name": "a",
